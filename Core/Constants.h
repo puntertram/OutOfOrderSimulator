@@ -1,0 +1,6 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
+#define NUMBER_OF_INSTRUCTIONS_FETCH_PER_CYCLE 4
+
+#endif
