@@ -2,11 +2,11 @@
 
 #define FETCHUNIT_H 
 #include "./ICache.h"
-#include "./Constants.h"
-#include "./Instruction.h"
+#include "../Constants.h"
+#include "../Instruction.h"
 #include "./InstructionDecoder.h"
 #include "./BranchPredictionUnit.h"
-#include "./Utils.h"
+#include "../Utils.h"
 
 #include <iostream>
 #include <vector>
@@ -20,7 +20,10 @@ public:
     InstructionDecoder *instructionDecoder;
     BranchPredictionUnit *branchPredictionUnit;
     vector<Instruction *> instructionQueue;
-
+    FetchUnit() {
+        this->icache = new ICache();
+        this->instructionDecoder = new InstructionDecoder();
+    }
     int PC;
     void fetch() {
         if(icache->getStatus() == ICACHE_BUSY) {
@@ -28,13 +31,14 @@ public:
         } else {
             vector<string> data = icache->getData(PC, NUMBER_OF_INSTRUCTIONS_FETCH_PER_CYCLE);
             for(string d : data) {
-                Instruction *instruction = new Instruction();
+                Instruction *instruction = NULL;
                 vector<string> instructionElements = getElements(d);
-                instructionDecoder->decodeInstruction(instruction, instructionElements);  
+                instruction = instructionDecoder->decodeInstruction(instructionElements);  
                 if(instructionDecoder->isControlFlowInstruction(instruction)) {
                     updatePC(instruction);
                     break;
-                } 
+                }
+                instructionQueue.push_back(instruction); 
             }
             
         }
@@ -42,7 +46,7 @@ public:
     void updatePC(Instruction *instruction) {
         PC = PC + 4;
         if(instructionDecoder->isControlFlowInstruction(instruction)) {
-            if(instruction->type == BR_INSTRUCTION) {
+            if(instruction->type == BEQ_INSTRUCTION) {
                 // It is a conditional branch
                 if(branchPredictionUnit->branchPredictor->getPrediction() == TAKE_BRANCH) {
                     cout << "Branch predicted taken\n";
