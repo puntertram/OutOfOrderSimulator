@@ -22,6 +22,16 @@ public:
 
         }
     }
+    bool isIntegerInstruction(Instruction *instruction) {
+        return (instruction->type == ADD_INSTRUCTION) or (instruction->type == ADDI_INSTRUCTION);
+    }
+    bool isFloatingPointInstruction(Instruction *instruction) {
+        // No FP instruction in ISA yet!!!
+        return false;
+    }
+    bool isLoadStoreInstruction(Instruction *instruction) {
+        return (instruction->type == LOADBYTE_INSTRUCTION) or (instruction->type == STOREBYTE_INSTRUCTION);
+    }
     bool isControlFlowInstruction(Instruction *instruction) {
         return 
                 (instruction->type == BEQ_INSTRUCTION) or 

@@ -19,15 +19,17 @@ public:
     ICache *icache;
     InstructionDecoder *instructionDecoder;
     BranchPredictionUnit *branchPredictionUnit;
-    vector<Instruction *> instructionQueue;
+    vector<Instruction *> *instructionQueue;
+    bool stalled;
     FetchUnit() {
         this->icache = new ICache();
         this->instructionDecoder = new InstructionDecoder();
     }
     int PC;
     void fetch() {
-        if(icache->getStatus() == ICACHE_BUSY) {
+        if((icache->getStatus() == ICACHE_BUSY) or (instructionQueue->size() == INSTRUCTION_QUEUE_CAPACITY)) {
             cout << "Fetch unit stalled\n";
+            stalled = true;
         } else {
             vector<string> data = icache->getData(PC, NUMBER_OF_INSTRUCTIONS_FETCH_PER_CYCLE);
             for(string d : data) {
@@ -38,7 +40,7 @@ public:
                     updatePC(instruction);
                     break;
                 }
-                instructionQueue.push_back(instruction); 
+                instructionQueue->push_back(instruction); 
             }
             
         }
